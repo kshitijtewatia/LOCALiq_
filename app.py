@@ -1,27 +1,6 @@
-import mysql.connector
-############## CONNECT DATABASE WITH PYTHON ###################
-connection = mysql.connector.connect(
-    host = "localhost",
-    user="root",
-    password="your password" ##please use your database
-)
+from database import get_connection
+connection = get_connection()
 cursor = connection.cursor()
-print("database connected ")
-cursor.execute("CREATE DATABASE IF NOT EXISTS localiq_app")
-print("database formed ")
-
-cursor.close()
-connection.close()
-
-connection = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    password="kSHITY@3159",
-    database="localiq_app"
-)
-cursor = connection.cursor()
-print("connected to localiq database")
-
 #######################create table########################
 cursor.execute(
     '''
