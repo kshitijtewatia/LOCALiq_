@@ -1,5 +1,6 @@
 from database import get_connection
 from auth import login, register
+from posts import post_something, see_posts, search_post, delete_post, edit_post
 connection = get_connection()
 cursor = connection.cursor()
 #######################create table########################
@@ -52,46 +53,14 @@ Choose an option:
         choice=int(input("enter your choice please: "))
     except ValueError:
         print("please enter valid number.............")
+        continue
     if choice==1:
-        user_name = username
-        category = input("Enter your category: ")
-        city = input("enter your city name: ")
-        message=input("What's new about the city: ")
-        ############ QUERY TO SEND TO SQL###################
-        query = '''
-        INSERT INTO posts
-        (user_name, category, city, message) 
-        VALUES(%s, %s, %s, %s)
+        post_something(username, cursor, connection)
         
-        '''
-        ############ SENDING VALUES WITH QUERY ###############
-        values = (
-            user_name,
-            category,
-            city,
-            message
-        )
-        ##################### SENDING TO STORE ##################
-        cursor.execute(query, values)
-        connection.commit()
         
-        print("posted successfully.......")
     elif choice==2:
-        ################ SELECTING ALL DATA FROM TABLE#########################
-        cursor.execute(
-            "SELECT * FROM posts ORDER BY created_at DESC"
-        )
-        #################### fETCHING DATA TO SHOW TO USERS ################################
-        posts = cursor.fetchall()
+        see_posts(cursor)
         
-        print("--------------- latest updates -------------")
-        for post in posts:
-            print("\nPost ID:", post[0])
-            print("User:", post[1])
-            print("Category:", post[2])
-            print("City:", post[3])
-            print("Update:", post[4])
-            print("Time:", post[5])
             
     elif choice == 3:
         print("""
@@ -103,58 +72,12 @@ Choose an option:
         break
     
     elif choice == 4:
-        try:
-            post_id = int(input("Enter the post id you want to delete: "))
-        except ValueError:
-            print("enter valid value please...........")
-        cursor.execute(
-            '''SELECT * FROM posts
-            where post_id = %s;
-            ''',
-            (post_id,)
-        )
-        result = cursor.fetchone()
-        if result:
-            print("congrats we found your post hurray.............")
-            print(result)
-        else:
-            print("result not found........")
-    
-    elif choice == 5:
-        try:
-            delete_post = int(input("Enter the post id number you want to delete: "))
-        except ValueError:
-            print("please enter valid number...................")
-        cursor.execute(
-            '''
-            DELETE FROM posts
-            WHERE post_id = %s
-            ''',
-            (delete_post,)
-            
-        )
-        connection.commit()
-        print("post is deleted please check by press 2 on main menu>>>>>>>>")
-    elif choice == 6:
-        try:
-            edit_id = int(input("enter the post id you want to edit: "))
-        except ValueError:
-            print("enter valid input: ")
-            continue
-        mess_age= input("enter what you want to write: ")
+        search_post(cursor, connection)
         
-        cursor.execute(
-            
-            '''
-            UPDATE posts
-            SET message = %s
-            WHERE post_id = %s
-            ''',
-            (mess_age, edit_id,)
-            
-        )
-        connection.commit()
-        print("your post is now updated ....>>>>>>>>")
+    elif choice == 5:
+        delete_post(cursor, connection)
+    elif choice == 6:
+        edit_post(cursor, connection, user_id)
     
     elif choice == 7:
         p_id = int(input("enter post id which you want to comment: "))
