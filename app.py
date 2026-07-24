@@ -1,6 +1,7 @@
 from database import get_connection
 from auth import login, register
 from posts import post_something, see_posts, search_post, delete_post, edit_post
+from comments import view_comment, add_comment
 connection = get_connection()
 cursor = connection.cursor()
 #######################create table########################
@@ -80,44 +81,10 @@ Choose an option:
         edit_post(cursor, connection, user_id)
     
     elif choice == 7:
-        p_id = int(input("enter post id which you want to comment: "))
-        u_name = input("enter your username: ")
-        cmnt = input("enter your comment: ")
-        cursor.execute(
-            '''
-            INSERT INTO comments
-            (post_id, user_name, comment)
-            VALUES(%s, %s, %s)
-            
-            ''',
-            (p_id, u_name, cmnt)
-            
-        )
-        connection.commit()
-        print("your comments is added <<<<<<<<<<<<>>>>>>>>>")
+        add_comment(cursor, connection, username)
     
     elif choice == 8:
-        p_id = int(input("enter your post id you want to view comment: "))
-        cursor.execute(
-            '''
-            SELECT * FROM comments
-            WHERE post_id = %s
-            ORDER BY created_at ASC
-            ''',
-            (p_id,)
-            
-        )
-        comments = cursor.fetchall()
-        if comments:
-            print("\n------------- comments ------------")
-            for comment in comments:
-                print("user: ", comment[2])
-                print("comment: ", comment[3])
-                print("Time:", comment[4])
-                print("-" *30)
-        else:
-            print("no comments found for this post...")
-        
+        view_comment(cursor)
     else:
         print("please enter valid number: ")
 
