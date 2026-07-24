@@ -1,133 +1,32 @@
 from database import get_connection
+from auth import login, register
 connection = get_connection()
 cursor = connection.cursor()
 #######################create table########################
-cursor.execute(
-    '''
-    CREATE TABLE IF NOT EXISTS posts(
-        
-        post_id INT AUTO_INCREMENT PRIMARY KEY,
-        
-        user_name VARCHAR(50),
-        
-        category VARCHAR(50),
-        
-        city VARCHAR(50),
-        
-        message TEXT,
-        
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-    
-    
-    '''
-    
-)
-connection.commit() ##### COMMIT TO DATABASE EVERY EXECUTION
 
-cursor.execute(
-    '''
-    CREATE TABLE IF NOT EXISTS comments(
-        comment_id INT AUTO_INCREMENT PRIMARY KEY,
-        post_id INT,
-        user_name VARCHAR(50),
-        comment TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (post_id) REFERENCES posts(post_id)
-    );
-    '''
-    
-)
-connection.commit()
-
-cursor.execute(
-    '''
-    CREATE TABLE IF NOT EXISTS users(
-        user_id INT AUTO_INCREMENT PRIMARY KEY,
-        full_name VARCHAR(100),
-        username VARCHAR(50) UNIQUE,
-        email VARCHAR(100) UNIQUE,
-        password VARCHAR(255),
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
-    
-    '''
-    
-)
-print("table comments formed")
-
-print("press 1 for user login")
-print("press 2 for registration")
+print("1. Login")
+print("2. Register")
 
 userc = int(input("enter your choice: "))
 
 if userc == 1:
-    username = input("enter your username: ")
-    password = input("Enter your password: ")
-    cursor.execute(
-        '''
-        SELECT user_id,username 
-        FROM users
-        WHERE username = %s AND password = %s
-        
-        ''',
-        (username, password)
-        
-    )
-    user = cursor.fetchone()
-    if user:
-        current_user_id = user[0]
-        current_username= user[1]
-        print("login successfully....")
-        user= True
-    else:
-        print("sorry no user found..........")
-        
+    current_user = login(cursor)
+    
 elif userc == 2:
-    usernaam = input("enter your username: ")
-    emailid = input("enter your email id: ")
-    fullname = input("enter your full name: ")
-    passwrd = input("enter your password: ")
-    cursor.execute(
-        '''
-        INSERT INTO users 
-        (full_name, username, email, password)
-        VALUES(%s, %s, %s, %s )
-        
-        ''',
-        (fullname, usernaam, emailid, passwrd )
-        
-    )
-    connection.commit()
-    print("you are now registered! congratulations............\n")
-    print("now enter your username password to login..........\n")
-    username = input("enter your username: ")
-    password = input("Enter your password: ")
-    cursor.execute(
-        '''
-        SELECT user_id,username 
-        FROM users
-        WHERE username = %s AND password = %s
-        
-        ''',
-        (username, password)
-        
-    )
-    user = cursor.fetchone()
-    if user:
-        current_user_id = user[0]
-        current_username= user[1]
-        print("login successfully....")
-        user=True
-    else:
-        print("sorry user not found..........")
-    
-    
+    current_user = register(cursor, connection)
+else:
+    print("invalid choice")
+    exit()
+if current_user is None:
+    exit()
+username = current_user["username"]
+user_id = current_user["user_id"]
+run = True
 
 
 
 
-while user==True:
+while run==True:
     print("""
 ===============================================================
                     LOCAL IQ
